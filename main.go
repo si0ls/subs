@@ -28,7 +28,7 @@ func main() {
 	} else if len(warns) > 0 {
 		fmt.Println("Warnings:")
 		for _, warn := range warns {
-			fmt.Println(warn)
+			printError(warn)
 		}
 		fmt.Println("====================================")
 	}
@@ -37,5 +37,20 @@ func main() {
 	stl.PrintGSI(s.GSI)
 	for _, tti := range s.TTI {
 		stl.PrintTTI(tti, s.GSI.CCT)
+	}
+}
+
+func printError(err error) {
+	if err == nil {
+		return
+	}
+
+	switch err.(type) {
+	case *stl.GSIEncodingErr:
+		fmt.Println("GSIEncodingErr:", err)
+	case *stl.TTIEncodingErr:
+		fmt.Println("TTIEncodingErr:", err)
+	default:
+		fmt.Println("Unknown error:", err)
 	}
 }

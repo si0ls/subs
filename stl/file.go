@@ -23,17 +23,19 @@ func (f *File) Decode(r io.Reader) (warns []error, err error) {
 	if gsiErr != nil {
 		return nil, gsiErr
 	}
-	warns = appendErrs(warns, gsiWarns...)
+	warns = appendErrs(warns, wrapGSIEncodingErrs(gsiWarns...)...)
 
+	var i int = 0
 	for {
 		tti := NewTTIBlock()
 		ttiErr := tti.Decode(r)
 		if ttiErr == io.EOF {
 			break
 		} else if ttiErr != nil {
-			return warns, ttiErr
+			return warns, &TTIEncodingErr{error: ttiErr, block: i}
 		}
 		f.TTI = append(f.TTI, tti)
+		i++
 	}
 
 	return
@@ -42,11 +44,11 @@ func (f *File) Decode(r io.Reader) (warns []error, err error) {
 // Encode encodes and writes the STL file to w.
 func (f *File) Encode(w io.Writer) error {
 	if err := f.GSI.Encode(w); err != nil {
-		return err
+		return &GSIEncodingErr{error: err}
 	}
-	for _, tti := range f.TTI {
+	for i, tti := range f.TTI {
 		if err := tti.Encode(w); err != nil {
-			return err
+			return &TTIEncodingErr{error: err, block: i}
 		}
 	}
 	return nil

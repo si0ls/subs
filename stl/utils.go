@@ -26,3 +26,23 @@ func appendErrs(errs []error, err ...error) []error {
 	}
 	return errs
 }
+
+func wrapGSIEncodingErrs(err ...error) []error {
+	var errs []error
+	for _, e := range err {
+		if e != nil {
+			errs = append(errs, &GSIEncodingErr{error: e})
+		}
+	}
+	return errs
+}
+
+func wrapGTIEncodingErrs(block int, err ...error) []error {
+	var errs []error
+	for _, e := range err {
+		if e != nil {
+			errs = append(errs, &TTIEncodingErr{error: e, block: block})
+		}
+	}
+	return errs
+}
