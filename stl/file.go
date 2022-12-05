@@ -6,8 +6,8 @@ import "io"
 // The file comprises one General Subtitle Information (GSI) block and a
 // number of Text and Timing Information (TTI) blocks.
 type File struct {
-	GSI *gsiBlock
-	TTI []*ttiBlock
+	GSI *GSIBlock
+	TTI []*TTIBlock
 }
 
 // CreateFile returns a new stl.File.

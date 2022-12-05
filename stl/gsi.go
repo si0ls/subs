@@ -8,8 +8,8 @@ import (
 // GSIBlockSize is the size in bytes of the GSI block in a STL file.
 const GSIBlockSize = 1024
 
-// gsiBlock is the General Subtitle Information (GSI) block representation.
-type gsiBlock struct {
+// GSIBlock is the General Subtitle Information (GSI) block representation.
+type GSIBlock struct {
 	CPN CodePageNumber      // Code Page Number - bytes 0..2 (3 bytes)
 	DFC DiskFormatCode      // Disk Format Code - bytes 3..10 (8 bytes)
 	DSC DisplayStandardCode // Display Standard Code - byte 11 (1 byte)
@@ -43,8 +43,8 @@ type gsiBlock struct {
 }
 
 // NewGSIBlock returns a new GSI block.
-func NewGSIBlock() *gsiBlock {
-	gsi := gsiBlock{}
+func NewGSIBlock() *GSIBlock {
+	gsi := GSIBlock{}
 	gsi.reset()
 	return &gsi
 }
@@ -52,7 +52,7 @@ func NewGSIBlock() *gsiBlock {
 // Framerate returns the framerate of the GSI block (extracted from the Disk Format Code).
 // The supported values are 25 and 30 fps.
 // Returns -1 if Disk Format Code is unsupported.
-func (gsi *gsiBlock) Framerate() uint {
+func (gsi *GSIBlock) Framerate() uint {
 	switch gsi.DFC {
 	case DiskFormatCode25_01:
 		return 25
@@ -63,7 +63,7 @@ func (gsi *gsiBlock) Framerate() uint {
 }
 
 // Decode reads and decodes GSI block from reader.
-func (gsi *gsiBlock) Decode(r io.Reader) ([]error, error) {
+func (gsi *GSIBlock) Decode(r io.Reader) ([]error, error) {
 	b := make([]byte, GSIBlockSize)
 	if _, err := io.ReadFull(r, b); err != nil {
 		return nil, err
@@ -108,7 +108,7 @@ func (gsi *gsiBlock) Decode(r io.Reader) ([]error, error) {
 }
 
 // Encode encodes and writes GSI block to writer.
-func (gsi *gsiBlock) Encode(w io.Writer) error {
+func (gsi *GSIBlock) Encode(w io.Writer) error {
 	b := make([]byte, GSIBlockSize)
 
 	encodeGSIInt(b[0:2], (int)(gsi.CPN)) // Code Page Number - bytes 0..2 (3 bytes)
@@ -187,13 +187,13 @@ func (gsi *gsiBlock) Encode(w io.Writer) error {
 // If a ValidateErr is flaggued as fatal, then the GSI block is considered invalid.
 // A warning will be returned if a field in GSI block have "unconventional" value.
 // A fatal error will be returned if a field value make the future GSI processing impossible.
-func (gsi *gsiBlock) Validate() []error {
+func (gsi *GSIBlock) Validate() []error {
 	var errs []error
 	//todo: validation
 	return errs
 }
 
-func (gsi *gsiBlock) reset() {
+func (gsi *GSIBlock) reset() {
 	gsi.CPN = CodePageNumberInvalid
 	gsi.DFC = DiskFormatCodeInvalid
 	gsi.DSC = DisplayStandardCodeBlank

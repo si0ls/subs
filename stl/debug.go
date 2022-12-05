@@ -2,7 +2,7 @@ package stl
 
 import "fmt"
 
-func PrintGSI(gsi *gsiBlock) {
+func PrintGSI(gsi *GSIBlock) {
 	fmt.Printf("--- GSI ---\n")
 	fmt.Println("CPN (Code Page Number):", gsi.CPN)
 	fmt.Println("DFC (Disk Format Code):", gsi.DFC)
@@ -37,7 +37,7 @@ func PrintGSI(gsi *gsiBlock) {
 	fmt.Println("Framerate (additional):", gsi.Framerate())
 }
 
-func PrintTTI(tti *ttiBlock, cct CharacterCodeTable) {
+func PrintTTI(tti *TTIBlock, cct CharacterCodeTable) {
 	fmt.Printf("--- TTI ---\n")
 	fmt.Printf("SGN (Subtitle Group Number): %d\n", tti.SGN)
 	fmt.Printf("SN (Subtitle Number): %d\n", tti.SN)

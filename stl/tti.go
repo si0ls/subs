@@ -8,8 +8,8 @@ import (
 // TTIBlockSize is the size in bytes of a TTI block in a STL file.
 const TTIBlockSize = 128
 
-// ttiBlock is the Text and Timing Information (TTI) block representation.
-type ttiBlock struct {
+// TTIBlock is the Text and Timing Information (TTI) block representation.
+type TTIBlock struct {
 	SGN int               // Subtitle Group Number
 	SN  int               // Subtitle Number
 	EBN int               // Extension Block Number
@@ -25,14 +25,14 @@ type ttiBlock struct {
 }
 
 // NewTTIBlock returns a new TTI block.
-func NewTTIBlock() *ttiBlock {
-	tti := ttiBlock{}
+func NewTTIBlock() *TTIBlock {
+	tti := TTIBlock{}
 	tti.reset()
 	return &tti
 }
 
 // Text returns the UTF-8 decoded Text Field (TF).
-func (tti *ttiBlock) Text(cct CharacterCodeTable) (string, error) {
+func (tti *TTIBlock) Text(cct CharacterCodeTable) (string, error) {
 	if dec, ok := characterCodeTableDecoders[cct]; ok {
 		b, err := dec.Decode([]byte(tti.TF))
 		if err != nil {
@@ -44,7 +44,7 @@ func (tti *ttiBlock) Text(cct CharacterCodeTable) (string, error) {
 }
 
 // SetText sets the Text Field (TF) from the UTF-8 encoded text.
-func (tti *ttiBlock) SetText(text string, cct CharacterCodeTable) error {
+func (tti *TTIBlock) SetText(text string, cct CharacterCodeTable) error {
 	if enc, ok := characterCodeTableEncoders[cct]; ok {
 		b, err := enc.Encode([]byte(text))
 		if err != nil {
@@ -57,7 +57,7 @@ func (tti *ttiBlock) SetText(text string, cct CharacterCodeTable) error {
 }
 
 // Decode reads and decodes TTI block from reader.
-func (tti *ttiBlock) Decode(r io.Reader) error {
+func (tti *TTIBlock) Decode(r io.Reader) error {
 	b := make([]byte, TTIBlockSize)
 	if _, err := io.ReadFull(r, b); err != nil {
 		return err
@@ -83,7 +83,7 @@ func (tti *ttiBlock) Decode(r io.Reader) error {
 }
 
 // Encode encodes and writes TTI block to writer.
-func (tti *ttiBlock) Encode(w io.Writer) error {
+func (tti *TTIBlock) Encode(w io.Writer) error {
 	b := make([]byte, TTIBlockSize)
 
 	encodeTTIInt(b[0:1], tti.SGN)           // Subtitle Group Number (SGN) - byte 0 (1 byte)
@@ -106,13 +106,13 @@ func (tti *ttiBlock) Encode(w io.Writer) error {
 // If a ValidateErr is flaggued as fatal, then the TTI block is considered invalid.
 // A warning will be returned if a field in TTI block have "unconventional" value.
 // A fatal error will be returned if a field value make the future TTI processing impossible.
-func (tti *ttiBlock) Validate() []error {
+func (tti *TTIBlock) Validate() []error {
 	var errs []error
 	//todo: validation
 	return errs
 }
 
-func (tti *ttiBlock) reset() {
+func (tti *TTIBlock) reset() {
 	tti.SGN = -1
 	tti.SN = -1
 	tti.EBN = -1
