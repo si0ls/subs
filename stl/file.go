@@ -1,6 +1,9 @@
 package stl
 
-import "io"
+import (
+	"fmt"
+	"io"
+)
 
 // File is the representation of a STL file.
 // The file comprises one General Subtitle Information (GSI) block and a
@@ -23,7 +26,7 @@ func (f *File) Decode(r io.Reader) (warns []error, err error) {
 	if gsiErr != nil {
 		return nil, gsiErr
 	}
-	warns = appendErrs(warns, wrapGSIEncodingErrs(gsiWarns...)...)
+	warns = appendErrs(warns, gsiWarns...)
 
 	var i int = 0
 	for {
@@ -32,7 +35,10 @@ func (f *File) Decode(r io.Reader) (warns []error, err error) {
 		if ttiErr == io.EOF {
 			break
 		} else if ttiErr != nil {
-			return warns, &TTIEncodingErr{error: ttiErr, block: i}
+			if ttiErr, ok := ttiErr.(*TTIEncodingError); ok {
+				return warns, setTTIEncodingErrBlock(ttiErr, i)
+			}
+			panic(fmt.Errorf("unexpected error type: %T", ttiErr))
 		}
 		f.TTI = append(f.TTI, tti)
 		i++
@@ -44,11 +50,14 @@ func (f *File) Decode(r io.Reader) (warns []error, err error) {
 // Encode encodes and writes the STL file to w.
 func (f *File) Encode(w io.Writer) error {
 	if err := f.GSI.Encode(w); err != nil {
-		return &GSIEncodingErr{error: err}
+		return err
 	}
 	for i, tti := range f.TTI {
 		if err := tti.Encode(w); err != nil {
-			return &TTIEncodingErr{error: err, block: i}
+			if ttiErr, ok := err.(*TTIEncodingError); ok {
+				return setTTIEncodingErrBlock(ttiErr, i)
+			}
+			panic(fmt.Errorf("unexpected error type: %T", err))
 		}
 	}
 	return nil

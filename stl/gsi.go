@@ -73,36 +73,36 @@ func (gsi *GSIBlock) Decode(r io.Reader) ([]error, error) {
 
 	var errs []error
 
-	appendErrs(errs, decodeGSIInt(b[0:3], (*int)(&gsi.CPN)))                 // Code Page Number - bytes 0..2 (3 bytes)
-	appendErrs(errs, decodeGSIString(b[3:11], (*string)(&gsi.DFC), gsi.CPN)) // Disk Format Code - bytes 3..10 (8 bytes)
-	appendErrs(errs, decodeGSIByte(b[11:12], (*byte)(&gsi.DSC)))             // Display Standard Code - byte 11 (1 byte)
-	appendErrs(errs, decodeGSIByte(b[12:14], (*byte)(&gsi.CCT)))             // Character Code Table number - bytes 12..13 (2 bytes)
-	appendErrs(errs, decodeGSIHex(b[14:16], (*byte)(&gsi.LC)))               // Language Code - bytes 14..15 (2 bytes)
-	appendErrs(errs, decodeGSIString(b[16:48], &gsi.OPT, gsi.CPN))           // Original Program Title - bytes 16..47 (32 bytes)
-	appendErrs(errs, decodeGSIString(b[48:80], &gsi.OET, gsi.CPN))           // Original Episode Title - bytes 48..79 (32 bytes)
-	appendErrs(errs, decodeGSIString(b[80:112], &gsi.TPT, gsi.CPN))          // Translated Program Title - bytes 80..111 (32 bytes)
-	appendErrs(errs, decodeGSIString(b[112:144], &gsi.TET, gsi.CPN))         // Translated Episode Title - bytes 112..143 (32 bytes)
-	appendErrs(errs, decodeGSIString(b[144:176], &gsi.TN, gsi.CPN))          // Translator's Name - bytes 144..175 (32 bytes)
-	appendErrs(errs, decodeGSIString(b[176:208], &gsi.TCD, gsi.CPN))         // Translator's Contact Details - bytes 176..207 (32 bytes)
-	appendErrs(errs, decodeGSIString(b[208:224], &gsi.SLR, gsi.CPN))         // Subtitle List Reference Code - bytes 208..223 (16 bytes)
-	appendErrs(errs, decodeGSIDate(b[224:230], &gsi.CD))                     // Creation Date - bytes 224..229 (6 bytes)
-	appendErrs(errs, decodeGSIDate(b[230:236], &gsi.RD))                     // Revision Date - bytes 230..235 (6 bytes)
-	appendErrs(errs, decodeGSIInt(b[236:238], &gsi.RN))                      // Revision Number - bytes 236..237 (2 bytes)
-	appendErrs(errs, decodeGSIInt(b[238:243], &gsi.TNB))                     // Total Number of Text and Timing Information (TTI) blocks - bytes 238..242 (5 bytes)
-	appendErrs(errs, decodeGSIInt(b[243:248], &gsi.TNS))                     // Total Number of Subtitles - bytes 243..247 (5 bytes)
-	appendErrs(errs, decodeGSIInt(b[248:251], &gsi.TNG))                     // Total Number of Subtitle Groups - bytes 248..250 (3 bytes)
-	appendErrs(errs, decodeGSIInt(b[251:253], &gsi.MNC))                     // Maximum Number of Displayable Characters in any text row - bytes 251..252 (2 bytes)
-	appendErrs(errs, decodeGSIInt(b[253:255], &gsi.MNR))                     // Maximum Number of Displayable Rows - bytes 253..254 (2 bytes)
-	appendErrs(errs, decodeGSIByte(b[255:256], (*byte)(&gsi.TCS)))           // Time Code: Status - bytes 255 (1 byte)
-	appendErrs(errs, decodeGSITimecode(b[256:264], &gsi.TCP))                // Time Code: Start-of-Program - bytes 256..263 (8 bytes)
-	appendErrs(errs, decodeGSITimecode(b[264:272], &gsi.TCF))                // Time Code: First In-Cue - bytes 264..271 (8 bytes)
-	appendErrs(errs, decodeGSIInt(b[272:273], &gsi.TND))                     // Total Number of Disks - byte 272 (1 byte)
-	appendErrs(errs, decodeGSIInt(b[272:274], &gsi.DSN))                     // Disk Sequence Number - byte 273 (1 byte)
-	appendErrs(errs, decodeGSIString(b[274:277], &gsi.CO, gsi.CPN))          // Country of Origin - bytes 274..276 (3 bytes)
-	appendErrs(errs, decodeGSIString(b[277:309], &gsi.PUB, gsi.CPN))         // Publisher - bytes 277..308 (32 bytes)
-	appendErrs(errs, decodeGSIString(b[309:341], &gsi.EN, gsi.CPN))          // Editor's Name - bytes 309..340 (32 bytes)
-	appendErrs(errs, decodeGSIString(b[341:373], &gsi.ECD, gsi.CPN))         // Editor's Contact Details - bytes 341..372 (32 bytes)
-	copy(gsi.UDA, b[448:1024])                                               // User-Defined Area - bytes 448..1023 (576 bytes)
+	appendErrs(errs, wrapGSIEncodingErr(decodeGSIInt(b[0:3], (*int)(&gsi.CPN)), GSIFieldCPN))                 // Code Page Number - bytes 0..2 (3 bytes)
+	appendErrs(errs, wrapGSIEncodingErr(decodeGSIString(b[3:11], (*string)(&gsi.DFC), gsi.CPN), GSIFieldDFC)) // Disk Format Code - bytes 3..10 (8 bytes)
+	appendErrs(errs, wrapGSIEncodingErr(decodeGSIByte(b[11:12], (*byte)(&gsi.DSC)), GSIFieldDSC))             // Display Standard Code - byte 11 (1 byte)
+	appendErrs(errs, wrapGSIEncodingErr(decodeGSIByte(b[12:14], (*byte)(&gsi.CCT)), GSIFieldCCT))             // Character Code Table number - bytes 12..13 (2 bytes)
+	appendErrs(errs, wrapGSIEncodingErr(decodeGSIHex(b[14:16], (*byte)(&gsi.LC)), GSIFieldLC))                // Language Code - bytes 14..15 (2 bytes)
+	appendErrs(errs, wrapGSIEncodingErr(decodeGSIString(b[16:48], &gsi.OPT, gsi.CPN), GSIFieldOPT))           // Original Program Title - bytes 16..47 (32 bytes)
+	appendErrs(errs, wrapGSIEncodingErr(decodeGSIString(b[48:80], &gsi.OET, gsi.CPN), GSIFieldOET))           // Original Episode Title - bytes 48..79 (32 bytes)
+	appendErrs(errs, wrapGSIEncodingErr(decodeGSIString(b[80:112], &gsi.TPT, gsi.CPN), GSIFieldTPT))          // Translated Program Title - bytes 80..111 (32 bytes)
+	appendErrs(errs, wrapGSIEncodingErr(decodeGSIString(b[112:144], &gsi.TET, gsi.CPN), GSIFieldTET))         // Translated Episode Title - bytes 112..143 (32 bytes)
+	appendErrs(errs, wrapGSIEncodingErr(decodeGSIString(b[144:176], &gsi.TN, gsi.CPN), GSIFieldTN))           // Translator's Name - bytes 144..175 (32 bytes)
+	appendErrs(errs, wrapGSIEncodingErr(decodeGSIString(b[176:208], &gsi.TCD, gsi.CPN), GSIFieldTCD))         // Translator's Contact Details - bytes 176..207 (32 bytes)
+	appendErrs(errs, wrapGSIEncodingErr(decodeGSIString(b[208:224], &gsi.SLR, gsi.CPN), GSIFieldSLR))         // Subtitle List Reference Code - bytes 208..223 (16 bytes)
+	appendErrs(errs, wrapGSIEncodingErr(decodeGSIDate(b[224:230], &gsi.CD), GSIFieldCD))                      // Creation Date - bytes 224..229 (6 bytes)
+	appendErrs(errs, wrapGSIEncodingErr(decodeGSIDate(b[230:236], &gsi.RD), GSIFieldRD))                      // Revision Date - bytes 230..235 (6 bytes)
+	appendErrs(errs, wrapGSIEncodingErr(decodeGSIInt(b[236:238], &gsi.RN), GSIFieldRN))                       // Revision Number - bytes 236..237 (2 bytes)
+	appendErrs(errs, wrapGSIEncodingErr(decodeGSIInt(b[238:243], &gsi.TNB), GSIFieldTNB))                     // Total Number of Text and Timing Information (TTI) blocks - bytes 238..242 (5 bytes)
+	appendErrs(errs, wrapGSIEncodingErr(decodeGSIInt(b[243:248], &gsi.TNS), GSIFieldTNS))                     // Total Number of Subtitles - bytes 243..247 (5 bytes)
+	appendErrs(errs, wrapGSIEncodingErr(decodeGSIInt(b[248:251], &gsi.TNG), GSIFieldTNG))                     // Total Number of Subtitle Groups - bytes 248..250 (3 bytes)
+	appendErrs(errs, wrapGSIEncodingErr(decodeGSIInt(b[251:253], &gsi.MNC), GSIFieldMNC))                     // Maximum Number of Displayable Characters in any text row - bytes 251..252 (2 bytes)
+	appendErrs(errs, wrapGSIEncodingErr(decodeGSIInt(b[253:255], &gsi.MNR), GSIFieldMNR))                     // Maximum Number of Displayable Rows - bytes 253..254 (2 bytes)
+	appendErrs(errs, wrapGSIEncodingErr(decodeGSIByte(b[255:256], (*byte)(&gsi.TCS)), GSIFieldTCS))           // Time Code: Status - bytes 255 (1 byte)
+	appendErrs(errs, wrapGSIEncodingErr(decodeGSITimecode(b[256:264], &gsi.TCP), GSIFieldTCP))                // Time Code: Start-of-Program - bytes 256..263 (8 bytes)
+	appendErrs(errs, wrapGSIEncodingErr(decodeGSITimecode(b[264:272], &gsi.TCF), GSIFieldTCF))                // Time Code: First In-Cue - bytes 264..271 (8 bytes)
+	appendErrs(errs, wrapGSIEncodingErr(decodeGSIInt(b[272:273], &gsi.TND), GSIFieldTND))                     // Total Number of Disks - byte 272 (1 byte)
+	appendErrs(errs, wrapGSIEncodingErr(decodeGSIInt(b[272:274], &gsi.DSN), GSIFieldDSN))                     // Disk Sequence Number - byte 273 (1 byte)
+	appendErrs(errs, wrapGSIEncodingErr(decodeGSIString(b[274:277], &gsi.CO, gsi.CPN), GSIFieldCO))           // Country of Origin - bytes 274..276 (3 bytes)
+	appendErrs(errs, wrapGSIEncodingErr(decodeGSIString(b[277:309], &gsi.PUB, gsi.CPN), GSIFieldPUB))         // Publisher - bytes 277..308 (32 bytes)
+	appendErrs(errs, wrapGSIEncodingErr(decodeGSIString(b[309:341], &gsi.EN, gsi.CPN), GSIFieldEN))           // Editor's Name - bytes 309..340 (32 bytes)
+	appendErrs(errs, wrapGSIEncodingErr(decodeGSIString(b[341:373], &gsi.ECD, gsi.CPN), GSIFieldECD))         // Editor's Contact Details - bytes 341..372 (32 bytes)
+	copy(gsi.UDA, b[448:1024])                                                                                // User-Defined Area - bytes 448..1023 (576 bytes)
 
 	return errs, nil
 }
@@ -114,38 +114,38 @@ func (gsi *GSIBlock) Encode(w io.Writer) error {
 	encodeGSIInt(b[0:2], (int)(gsi.CPN)) // Code Page Number - bytes 0..2 (3 bytes)
 	// Disk Format Code - bytes 3..10 (8 bytes)
 	if err := encodeGSIString(b[3:11], (string)(gsi.DFC), gsi.CPN); err != nil {
-		return err
+		return wrapGSIEncodingErr(err, GSIFieldDFC)
 	}
 	encodeGSIByte(b[11:12], (byte)(gsi.DSC)) // Display Standard Code - byte 11 (1 byte)
 	encodeGSIByte(b[12:14], (byte)(gsi.CCT)) // Character Code Table number - bytes 12..13 (2 bytes)
 	encodeGSIHex(b[14:16], (byte)(gsi.LC))   // Language Code - bytes 14..15 (2 bytes)
 	// Original Program Title - bytes 16..47 (32 bytes)
 	if err := encodeGSIString(b[16:48], gsi.OPT, gsi.CPN); err != nil {
-		return err
+		return wrapGSIEncodingErr(err, GSIFieldOPT)
 	}
 	// Original Episode Title - bytes 48..79 (32 bytes)
 	if err := encodeGSIString(b[48:80], gsi.OET, gsi.CPN); err != nil {
-		return err
+		return wrapGSIEncodingErr(err, GSIFieldOET)
 	}
 	// Translated Program Title - bytes 80..111 (32 bytes)
 	if err := encodeGSIString(b[80:112], gsi.TPT, gsi.CPN); err != nil {
-		return err
+		return wrapGSIEncodingErr(err, GSIFieldTPT)
 	}
 	// Translated Episode Title - bytes 112..143 (32 bytes)
 	if err := encodeGSIString(b[112:144], gsi.TET, gsi.CPN); err != nil {
-		return err
+		return wrapGSIEncodingErr(err, GSIFieldTET)
 	}
 	// Translator's Name - bytes 144..175 (32 bytes)
 	if err := encodeGSIString(b[144:176], gsi.TN, gsi.CPN); err != nil {
-		return err
+		return wrapGSIEncodingErr(err, GSIFieldTN)
 	}
 	// Translator's Contact Details - bytes 176..207 (32 bytes)
 	if err := encodeGSIString(b[176:208], gsi.TCD, gsi.CPN); err != nil {
-		return err
+		return wrapGSIEncodingErr(err, GSIFieldTCD)
 	}
 	// Subtitle List Reference Code - bytes 208..223 (16 bytes)
 	if err := encodeGSIString(b[208:224], gsi.SLR, gsi.CPN); err != nil {
-		return err
+		return wrapGSIEncodingErr(err, GSIFieldSLR)
 	}
 	encodeGSIDate(b[224:230], gsi.CD)          // Creation Date - bytes 224..229 (6 bytes)
 	encodeGSIDate(b[130:236], gsi.RD)          // Revision Date - bytes 230..235 (6 bytes)
@@ -162,19 +162,19 @@ func (gsi *GSIBlock) Encode(w io.Writer) error {
 	encodeGSIInt(b[272:274], gsi.DSN)          // Disk Sequence Number - byte 273 (1 byte)
 	// Country of Origin - bytes 274..276 (3 bytes)
 	if err := encodeGSIString(b[274:277], gsi.CO, gsi.CPN); err != nil {
-		return err
+		return wrapGSIEncodingErr(err, GSIFieldCO)
 	}
 	// Publisher - bytes 277..308 (32 bytes)
 	if err := encodeGSIString(b[277:309], gsi.PUB, gsi.CPN); err != nil {
-		return err
+		return wrapGSIEncodingErr(err, GSIFieldPUB)
 	}
 	// Editor's Name - bytes 309..340 (32 bytes)
 	if err := encodeGSIString(b[309:341], gsi.EN, gsi.CPN); err != nil {
-		return err
+		return wrapGSIEncodingErr(err, GSIFieldEN)
 	}
 	// Editor's Contact Details - bytes 341..372 (32 bytes)
 	if err := encodeGSIString(b[341:373], gsi.ECD, gsi.CPN); err != nil {
-		return err
+		return wrapGSIEncodingErr(err, GSIFieldECD)
 	}
 	copy(b[448:1024], gsi.UDA) // User-Defined Area - bytes 448..1023 (576 bytes)
 

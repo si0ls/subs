@@ -8,7 +8,6 @@ import (
 )
 
 func main() {
-
 	// Get filepath from args
 	if len(os.Args) < 2 {
 		fmt.Println("Usage: go run main.go <filepath>")
@@ -27,9 +26,7 @@ func main() {
 		panic(err)
 	} else if len(warns) > 0 {
 		fmt.Println("Warnings:")
-		for _, warn := range warns {
-			printError(warn)
-		}
+		printErrs(warns...)
 		fmt.Println("====================================")
 	}
 
@@ -40,17 +37,11 @@ func main() {
 	}
 }
 
-func printError(err error) {
-	if err == nil {
-		return
-	}
-
-	switch err.(type) {
-	case *stl.GSIEncodingErr:
-		fmt.Println("GSIEncodingErr:", err)
-	case *stl.TTIEncodingErr:
-		fmt.Println("TTIEncodingErr:", err)
-	default:
-		fmt.Println("Unknown error:", err)
+func printErrs(errs ...error) {
+	for _, err := range errs {
+		if err == nil {
+			continue
+		}
+		fmt.Println(err)
 	}
 }
