@@ -44,12 +44,16 @@ func TimecodeFromDuration(duration time.Duration, framerate int) Timecode {
 	return TimecodeFromFrames(int(duration*time.Duration(framerate)/time.Second), framerate)
 }
 
-// ToTime returns timecode time.Time representation.
-func (t Timecode) ToTime(framerate int) time.Time {
-	return time.Unix(0, t.ToDuration(framerate).Nanoseconds())
-}
-
-// TimecodeFromTime returns a timecode from the given time.Time.
-func TimecodeFromTime(t time.Time, framerate int) Timecode {
-	return TimecodeFromDuration(t.Sub(time.Unix(0, 0)), framerate)
+// Correct corrects the timecode to make sure that the values are within the
+// valid ranges. For example, if the timecode is 00:00:00:30 with a framerate
+// of 25, the timecode will be corrected to 00:00:01:05.
+func (t *Timecode) Correct(framerate int) {
+	frames := t.ToFrames(framerate)
+	t.Hours = frames / (3600 * framerate)
+	frames -= t.Hours * 3600 * framerate
+	t.Minutes = frames / (60 * framerate)
+	frames -= t.Minutes * 60 * framerate
+	t.Seconds = frames / framerate
+	frames -= t.Seconds * framerate
+	t.Frames = frames
 }
