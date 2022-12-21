@@ -26,16 +26,16 @@ var (
 // EncodingError implements the error and Unwrap interfaces.
 type EncodingError struct {
 	error
-	input []byte
+	value interface{}
 }
 
-func encodingErr(err error, input []byte) *EncodingError {
-	return &EncodingError{err, input}
+func encodingErr(err error, value interface{}) *EncodingError {
+	return &EncodingError{error: err, value: value}
 }
 
 // Error returns the error message.
 func (e *EncodingError) Error() string {
-	return fmt.Sprintf("%s (input: %v)", e.error, e.input)
+	return fmt.Sprintf("%s (input: %v)", e.error, e.value)
 }
 
 // Unwrap returns the underlying error.
@@ -44,86 +44,46 @@ func (e *EncodingError) Unwrap() error {
 }
 
 // Input returns the input buffer.
-func (e *EncodingError) Input() []byte {
-	return e.input
+func (e *EncodingError) Input() interface{} {
+	return e.value
 }
 
-// GSIEncodingError is an error that occurred during GSI encoding.
-// It extends EncodingError that carries the input buffer that caused the error.
-// It carries the concerned GSI field.
-type GSIEncodingError struct {
-	error
-	field Field
+// DecodeError is an error that occurred during decoding.
+// It extends EncodingError that carries the value that caused the error.
+type DecodeError struct {
+	EncodingError
 }
 
-// Error returns the error message.
-func (e *GSIEncodingError) Error() string {
-	return fmt.Sprintf("GSI %s: %s", e.field, e.error.Error())
-}
-
-// Unwrap returns the underlying error.
-func (e *GSIEncodingError) Unwrap() error {
-	return e.error
-}
-
-// Field returns the concerned GSI field.
-func (e *GSIEncodingError) Field() Field {
-	return e.field
-}
-
-// wrapGSIEncodingErr wraps an error in a GSIEncodingError.
-func wrapGSIEncodingErr(err error, field Field) *GSIEncodingError {
-	if err == nil {
-		return nil
-	}
-	return &GSIEncodingError{err, field}
-}
-
-// TTIEncodingError is an error that occurred during TTI encoding.
-// It extends EncodingError that carries the input buffer that caused the error.
-// It carries the concerned TTI field and the TTI block number.
-// If TTI block is -1, it means that the TTI block number is unknown.
-type TTIEncodingError struct {
-	error
-	field Field
-	block int
+func decodeErr(err error, value interface{}) *DecodeError {
+	return &DecodeError{EncodingError: EncodingError{error: err, value: value}}
 }
 
 // Error returns the error message.
-// If TTI block is -1, it means that the TTI block number is unknown.
-func (e *TTIEncodingError) Error() string {
-	return fmt.Sprintf("TTI block %d %s: %s", e.block, e.field, e.error.Error())
+func (e *DecodeError) Error() string {
+	return fmt.Sprintf("decode: %s", e.error.Error())
 }
 
 // Unwrap returns the underlying error.
-func (e *TTIEncodingError) Unwrap() error {
+func (e *DecodeError) Unwrap() error {
 	return e.error
 }
 
-// Field returns the concerned TTI field.
-func (e *TTIEncodingError) Field() Field {
-	return e.field
+// EncodeError is an error that occurred during encoding.
+// It extends EncodingError that carries the input buffer that caused the error.
+type EncodeError struct {
+	EncodingError
 }
 
-// Block returns the concerned TTI block number.
-// If TTI block is -1, it means that the TTI block number is unknown.
-func (e *TTIEncodingError) Block() int {
-	return e.block
+func encodeErr(err error, value interface{}) *EncodeError {
+	return &EncodeError{EncodingError: EncodingError{error: err, value: value}}
 }
 
-// wrapTTIEncodingErr wraps an error in a TTIEncodingError.
-func wrapTTIEncodingErr(err error, field Field, block int) *TTIEncodingError {
-	if err == nil {
-		return nil
-	}
-	return &TTIEncodingError{err, field, block}
+// Error returns the error message.
+func (e *EncodeError) Error() string {
+	return fmt.Sprintf("encode: %s", e.error.Error())
 }
 
-// setTTIEncodingErrBlock sets the TTI block number in a TTIEncodingError.
-func setTTIEncodingErrBlock(err *TTIEncodingError, block int) *TTIEncodingError {
-	if err == nil {
-		return nil
-	}
-	err.block = block
-	return err
+// Unwrap returns the underlying error.
+func (e *EncodeError) Unwrap() error {
+	return e.error
 }

@@ -26,19 +26,20 @@ func (f *File) Decode(r io.Reader) (warns []error, err error) {
 	if gsiErr != nil {
 		return nil, gsiErr
 	}
-	warns = appendErrs(warns, gsiWarns...)
+	warns = appendNonNilErrs(warns, gsiWarns...)
 
 	var i int = 0
 	for {
 		tti := NewTTIBlock()
-		ttiErr := tti.Decode(r)
-		if ttiErr == io.EOF {
+		err := tti.Decode(r)
+		if err == io.EOF {
 			break
-		} else if ttiErr != nil {
-			if ttiErr, ok := ttiErr.(*TTIEncodingError); ok {
-				return warns, setTTIEncodingErrBlock(ttiErr, i)
+		} else if err != nil {
+			if ttiErr, ok := err.(*TTIError); ok {
+				ttiErr.setBlockNumber(i)
+				return warns, ttiErr
 			}
-			panic(fmt.Errorf("unexpected error type: %T", ttiErr))
+			panic(fmt.Errorf("unexpected error type: %T", err))
 		}
 		f.TTI = append(f.TTI, tti)
 		i++
@@ -54,8 +55,8 @@ func (f *File) Encode(w io.Writer) error {
 	}
 	for i, tti := range f.TTI {
 		if err := tti.Encode(w); err != nil {
-			if ttiErr, ok := err.(*TTIEncodingError); ok {
-				return setTTIEncodingErrBlock(ttiErr, i)
+			if ttiErr, ok := err.(*TTIError); ok {
+				ttiErr.setBlockNumber(i)
 			}
 			panic(fmt.Errorf("unexpected error type: %T", err))
 		}

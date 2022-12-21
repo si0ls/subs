@@ -331,7 +331,7 @@ func (lc LanguageCode) String() string {
 	return "Unknown"
 }
 
-// TimeCodeStatus is indicating the validity of the information given in the GSI and TTO blocks containing time-code data.
+// TimeCodeStatus is indicating the validity of the information given in the GSI and TTI blocks containing time-code data.
 // Only "Not intended for use" (0) and "Intended for use" (1) are supported values.
 type TimeCodeStatus byte
 

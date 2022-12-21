@@ -19,41 +19,41 @@ func (t Timecode) String() string {
 }
 
 // ToFrames returns the total number of frames.
-func (t Timecode) ToFrames(framerate int) int {
-	return t.Hours*3600*framerate + t.Minutes*60*framerate + t.Seconds*framerate + t.Frames
+func (t Timecode) ToFrames(framerate uint) int {
+	return t.Hours*3600*int(framerate) + t.Minutes*60*int(framerate) + t.Seconds*int(framerate) + t.Frames
 }
 
 // TimecodeFromFrames returns a timecode from the given number of frames.
-func TimecodeFromFrames(frames int, framerate int) Timecode {
-	hours := frames / (3600 * framerate)
-	frames -= hours * 3600 * framerate
-	minutes := frames / (60 * framerate)
-	frames -= minutes * 60 * framerate
-	seconds := frames / framerate
-	frames -= seconds * framerate
+func TimecodeFromFrames(frames int, framerate uint) Timecode {
+	hours := frames / (3600 * int(framerate))
+	frames -= hours * 3600 * int(framerate)
+	minutes := frames / (60 * int(framerate))
+	frames -= minutes * 60 * int(framerate)
+	seconds := frames / int(framerate)
+	frames -= seconds * int(framerate)
 	return Timecode{hours, minutes, seconds, frames}
 }
 
 // ToDuration returns timecode time.Duration representation.
-func (t Timecode) ToDuration(framerate int) time.Duration {
+func (t Timecode) ToDuration(framerate uint) time.Duration {
 	return time.Duration(t.ToFrames(framerate)) * time.Second / time.Duration(framerate)
 }
 
 // TimecodeFromDuration returns a timecode from the given time.Duration.
-func TimecodeFromDuration(duration time.Duration, framerate int) Timecode {
+func TimecodeFromDuration(duration time.Duration, framerate uint) Timecode {
 	return TimecodeFromFrames(int(duration*time.Duration(framerate)/time.Second), framerate)
 }
 
 // Correct corrects the timecode to make sure that the values are within the
 // valid ranges. For example, if the timecode is 00:00:00:30 with a framerate
 // of 25, the timecode will be corrected to 00:00:01:05.
-func (t *Timecode) Correct(framerate int) {
+func (t *Timecode) Correct(framerate uint) {
 	frames := t.ToFrames(framerate)
-	t.Hours = frames / (3600 * framerate)
-	frames -= t.Hours * 3600 * framerate
-	t.Minutes = frames / (60 * framerate)
-	frames -= t.Minutes * 60 * framerate
-	t.Seconds = frames / framerate
-	frames -= t.Seconds * framerate
+	t.Hours = frames / (3600 * int(framerate))
+	frames -= t.Hours * 3600 * int(framerate)
+	t.Minutes = frames / (60 * int(framerate))
+	frames -= t.Minutes * 60 * int(framerate)
+	t.Seconds = frames / int(framerate)
+	frames -= t.Seconds * int(framerate)
 	t.Frames = frames
 }
