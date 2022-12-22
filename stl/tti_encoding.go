@@ -9,6 +9,7 @@ import (
 )
 
 // Decode reads and decodes TTI block from reader.
+// An error is returned if a fatal error occurs that prevents further decoding.
 func (tti *TTIBlock) Decode(r io.Reader) error {
 	b := make([]byte, TTIBlockSize)
 	if _, err := io.ReadFull(r, b); err != nil {
@@ -33,6 +34,7 @@ func (tti *TTIBlock) Decode(r io.Reader) error {
 }
 
 // Encode encodes and writes TTI block to writer.
+// An error is returned if a fatal error occurs that prevents further encoding.
 func (tti *TTIBlock) Encode(w io.Writer) error {
 	b := make([]byte, TTIBlockSize)
 

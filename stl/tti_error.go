@@ -29,7 +29,7 @@ func ttiErrWithBlockNumber(err error, field TTIField, blockNumber int) error {
 
 // Error returns the error message.
 func (e *TTIError) Error() string {
-	return fmt.Sprintf("GSI %s: %s", e.field, e.error.Error())
+	return fmt.Sprintf("TTI %s: %s", e.field, e.error.Error())
 }
 
 // Unwrap returns the underlying error.

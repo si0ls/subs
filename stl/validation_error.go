@@ -1,7 +1,6 @@
 package stl
 
 import (
-	"errors"
 	"fmt"
 )
 
@@ -24,9 +23,9 @@ func validateErr(err error, value any, fatal bool) error {
 // Error returns the error message.
 func (e *ValidateError) Error() string {
 	if e.fatal {
-		return fmt.Sprintf("fatal: %s (value: %v)", e.error.Error(), e.value)
+		return fmt.Sprintf("validation: fatal: %s (value: %v)", e.error.Error(), e.value)
 	}
-	return fmt.Sprintf("%s (value: %v)", e.error.Error(), e.value)
+	return fmt.Sprintf("validation: %s (value: %v)", e.error.Error(), e.value)
 }
 
 // Unwrap returns the underlying error.
@@ -43,5 +42,3 @@ func (e *ValidateError) Value() any {
 func (e *ValidateError) IsFatal() bool {
 	return e.fatal
 }
-
-var ErrNoTTIBlocks = errors.New("no TTI blocks")
