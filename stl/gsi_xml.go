@@ -43,7 +43,10 @@ func encodeStlXmlElement(e *xml.Encoder, v any, tag string) error {
 }
 
 func (gsi *GSIBlock) MarshalXML(e *xml.Encoder, start xml.StartElement) error {
-	start.Name.Local = "head>GSI"
+	if err := e.EncodeToken(start); err != nil {
+		return err
+	}
+
 	if err := encodeStlXmlElement(e, encodeStlXmlInt(int(gsi.CPN), 3), "CPN"); err != nil {
 		return err
 	}
@@ -144,6 +147,10 @@ func (gsi *GSIBlock) MarshalXML(e *xml.Encoder, start xml.StartElement) error {
 		return err
 	}
 	if err := encodeStlXmlElement(e, string(gsi.UDA), "UDA"); err != nil {
+		return err
+	}
+
+	if err := e.EncodeToken(xml.EndElement{Name: start.Name}); err != nil {
 		return err
 	}
 
