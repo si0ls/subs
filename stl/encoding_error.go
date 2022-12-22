@@ -29,10 +29,6 @@ type EncodingError struct {
 	value interface{}
 }
 
-func encodingErr(err error, value interface{}) error {
-	return &EncodingError{error: err, value: value}
-}
-
 // Error returns the error message.
 func (e *EncodingError) Error() string {
 	return fmt.Sprintf("%s (input: %v)", e.error.Error(), e.value)

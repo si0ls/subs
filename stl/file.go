@@ -64,7 +64,7 @@ func (f *File) Encode(w io.Writer) error {
 	return nil
 }
 
-// Validate validates GSI block.
+// Validate validates STL file.
 // It returns a slice of warnings and an error if any.
 // Warnings are returned for each field that is invalid, warnings can flagged
 // as fatal if they are considered to be fatal to further file processing.
@@ -96,6 +96,8 @@ func (f *File) Validate() ([]error, error) {
 		ttiErrs := tti.Validate(f.GSI.Framerate(), f.GSI.DSC, f.GSI.MNR)
 		setTTIErrsBlockNumber(ttiErrs, i)
 		errs = appendNonNilErrs(errs, ttiErrs...)
+
+		//todo: add validation for TTI blocks
 	}
 
 	return errs, nil
