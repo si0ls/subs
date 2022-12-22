@@ -17,7 +17,7 @@ func cutPad(b []byte, n int, p rune) []byte {
 	return b
 }
 
-// appendErrs appends err to errs if err is not nil.
+// appendNonNilErrs appends err to errs if err is not nil.
 func appendNonNilErrs(errs []error, err ...error) []error {
 	for _, e := range err {
 		if e != nil {

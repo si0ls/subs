@@ -57,3 +57,20 @@ func (t *Timecode) Correct(framerate uint) {
 	frames -= t.Seconds * int(framerate)
 	t.Frames = frames
 }
+
+// Validate validates the timecode.
+func (t Timecode) Validate(framerate uint) error {
+	if t.Hours < 0 || t.Hours > 23 {
+		return fmt.Errorf("invalid hours: %d", t.Hours)
+	}
+	if t.Minutes < 0 || t.Minutes > 59 {
+		return fmt.Errorf("invalid minutes: %d", t.Minutes)
+	}
+	if t.Seconds < 0 || t.Seconds > 59 {
+		return fmt.Errorf("invalid seconds: %d", t.Seconds)
+	}
+	if t.Frames < 0 || t.Frames >= int(framerate) {
+		return fmt.Errorf("invalid frames: %d", t.Frames)
+	}
+	return nil
+}

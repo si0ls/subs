@@ -36,6 +36,16 @@ func main() {
 	for _, tti := range s.TTI {
 		stl.PrintTTI(tti, s.GSI.CCT)
 	}
+	fmt.Println("====================================")
+
+	// Validate file
+	if warns, err := s.Validate(); err != nil {
+		panic(err)
+	} else if len(warns) > 0 {
+		fmt.Println("Warnings:")
+		printErrs(warns...)
+		fmt.Println("====================================")
+	}
 }
 
 func printErrs(errs ...error) {
@@ -43,6 +53,6 @@ func printErrs(errs ...error) {
 		if err == nil {
 			continue
 		}
-		fmt.Println(err)
+		fmt.Printf("[Err]: %s\n", err)
 	}
 }

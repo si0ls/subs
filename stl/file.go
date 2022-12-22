@@ -64,8 +64,39 @@ func (f *File) Encode(w io.Writer) error {
 	return nil
 }
 
-func (f *File) Validate() []error {
+// Validate validates GSI block.
+// It returns a slice of warnings and an error if any.
+// Warnings are returned for each field that is invalid, warnings can flagged
+// as fatal if they are considered to be fatal to further file processing.
+// An error is returned if a field is invalid and prevents validation of
+// further fields.
+func (f *File) Validate() ([]error, error) {
 	var errs []error
-	//todo: validation
-	return errs
+
+	if f.GSI == nil {
+		panic(fmt.Errorf("GSI block is nil"))
+	}
+
+	gsiWarns, gsiErr := f.GSI.Validate()
+	if gsiErr != nil {
+		return nil, gsiErr
+	}
+
+	errs = appendNonNilErrs(errs, gsiWarns...)
+
+	if len(f.TTI) == 0 {
+		return errs, validateErr(ErrNoTTIBlocks, nil, true)
+	}
+
+	for i, tti := range f.TTI {
+		if tti == nil {
+			panic(fmt.Errorf("TTI block %d is nil", i))
+		}
+
+		ttiErrs := tti.Validate(f.GSI.Framerate(), f.GSI.DSC, f.GSI.MNR)
+		setTTIErrsBlockNumber(ttiErrs, i)
+		errs = appendNonNilErrs(errs, ttiErrs...)
+	}
+
+	return errs, nil
 }

@@ -29,13 +29,13 @@ type EncodingError struct {
 	value interface{}
 }
 
-func encodingErr(err error, value interface{}) *EncodingError {
+func encodingErr(err error, value interface{}) error {
 	return &EncodingError{error: err, value: value}
 }
 
 // Error returns the error message.
 func (e *EncodingError) Error() string {
-	return fmt.Sprintf("%s (input: %v)", e.error, e.value)
+	return fmt.Sprintf("%s (input: %v)", e.error.Error(), e.value)
 }
 
 // Unwrap returns the underlying error.
@@ -54,7 +54,7 @@ type DecodeError struct {
 	EncodingError
 }
 
-func decodeErr(err error, value interface{}) *DecodeError {
+func decodeErr(err error, value interface{}) error {
 	return &DecodeError{EncodingError: EncodingError{error: err, value: value}}
 }
 
@@ -74,7 +74,7 @@ type EncodeError struct {
 	EncodingError
 }
 
-func encodeErr(err error, value interface{}) *EncodeError {
+func encodeErr(err error, value interface{}) error {
 	return &EncodeError{EncodingError: EncodingError{error: err, value: value}}
 }
 

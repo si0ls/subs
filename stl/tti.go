@@ -113,6 +113,66 @@ func (tti *TTIBlock) Encode(w io.Writer) error {
 	return err
 }
 
+// Validate validates TTI block.
+// It returns a slice of warnings and an error if any.
+// Warnings are returned for each field that is invalid, warnings can flagged
+// as fatal if they are considered to be fatal to further file processing.
+func (tti *TTIBlock) Validate(framerate uint, dsc DisplayStandardCode, mnr int) []error {
+	var errs []error
+
+	// SGN - between 0 and 0xFF -> Fatal
+	errs = appendNonNilErrs(errs, ttiErr(validateRange(tti.SGN, 0, 0xFF, ErrUnsupportedSGN, true), TTIFieldSGN))
+
+	// SN - between 0 and 0xFFFF -> Fatal
+	errs = appendNonNilErrs(errs, ttiErr(validateRange(tti.SN, 0, 0xFFFF, ErrUnsupportedSN, true), TTIFieldSN))
+
+	// EBN - if 0xFF the TF field must be terminated by a space
+	if tti.EBN == 0xFF && !tti.terminatedBySpace {
+		errs = appendNonNilErrs(errs, ttiErr(validateErr(ErrLastEBNNotTerminatedBySpace, tti.EBN, false), TTIFieldEBN))
+	}
+
+	// EBN - not in reserved range (0xF0..0xFD)
+	errs = appendNonNilErrs(errs, ttiErr(validateNotInRange(tti.EBN, 0xF0, 0xFD, ErrReservedEBNRange, false), TTIFieldEBN))
+
+	// CS - in list
+	errs = appendNonNilErrs(errs, ttiErr(validateList(tti.CS, csValidValues, ErrUnsupportedCS, false), TTIFieldCS))
+
+	// TCI - valid -> fatal
+	errs = appendNonNilErrs(errs, ttiErr(validateTimecode(tti.TCI, framerate, ErrInvalidTCI, true), TTIFieldTCI))
+
+	// TCO - valid -> fatal
+	errs = appendNonNilErrs(errs, ttiErr(validateTimecode(tti.TCO, framerate, ErrInvalidTCO, true), TTIFieldTCO))
+
+	// Timecodes (TCI, TCO) - TCI < TCO -> fatal
+	errs = appendNonNilErrs(errs, ttiErr(validateTimecodeOrderStrict(tti.TCI, tti.TCO, framerate, ErrInvalidTCITCOOrder, true), TTIFieldTCO))
+
+	// VP - between 1 and 23 if teletext, between 0 and MNR if open subtitles, otherwise fatal
+	if dsc == DisplayStandardCodeLevel1Teletext || dsc == DisplayStandardCodeLevel2Teletext {
+		errs = appendNonNilErrs(errs, ttiErr(validateRange(tti.VP, 1, 23, ErrUnsupportedVPTeletext, false), TTIFieldVP))
+	} else if dsc == DisplayStandardCodeOpenSubtitling {
+		errs = appendNonNilErrs(errs, ttiErr(validateRange(tti.VP, 0, mnr, ErrUnsupportedVPOpenSubtitling, false), TTIFieldVP))
+	} else {
+		errs = appendNonNilErrs(errs, ttiErr(validateErr(ErrUnsupportedDSC, dsc, true), TTIFieldVP))
+	}
+
+	// JC - in list
+	errs = appendNonNilErrs(errs, ttiErr(validateList(tti.JC, jcValidValues, ErrUnsupportedJC, false), TTIFieldJC))
+
+	// CF - in list
+	errs = appendNonNilErrs(errs, ttiErr(validateList(tti.CF, cfValidValues, ErrUnsupportedCF, false), TTIFieldCF))
+
+	// TF - no teletext chars if open subtitles, no open subtitles chars if teletext
+	//todo: validation
+
+	// TF - out of boxes
+	//todo: validation
+
+	// TF - respects MNC
+	//todo: validation
+
+	return errs
+}
+
 // TTIError is an error that occurred on a TTI field.
 // It extends FieldError that carries the concerned TTI field.
 // It carries the concerned TTI block number.
@@ -124,11 +184,17 @@ type TTIError struct {
 	blockNumber int
 }
 
-func ttiErr(err error, field TTIField) *TTIError {
+func ttiErr(err error, field TTIField) error {
+	if err == nil {
+		return nil
+	}
 	return &TTIError{error: err, field: field}
 }
 
-func ttiErrWithBlockNumber(err error, field TTIField, blockNumber int) *TTIError {
+func ttiErrWithBlockNumber(err error, field TTIField, blockNumber int) error {
+	if err == nil {
+		return nil
+	}
 	return &TTIError{error: err, field: field, blockNumber: blockNumber}
 }
 
@@ -155,4 +221,12 @@ func (e *TTIError) BlockNumber() int {
 
 func (e *TTIError) setBlockNumber(blockNumber int) {
 	e.blockNumber = blockNumber
+}
+
+func setTTIErrsBlockNumber(errs []error, blockNumber int) {
+	for _, err := range errs {
+		if ttiErr, ok := err.(*TTIError); ok {
+			ttiErr.setBlockNumber(blockNumber)
+		}
+	}
 }
