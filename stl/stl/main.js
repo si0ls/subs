@@ -1,32 +1,18 @@
-const {exec} = require('child_process');
+const {exec, execSync} = require('child_process');
 const fs = require('fs');
 const assert = require('assert');
 
-const input = "toto.xml"
-const output = "1.stl.xml"
+const output = "toto.stl.xml"
+const expected = "./sources_100/1.stl.xml"
+const src = "./sources_100/1.stl"
 
 const {format} = require('prettier')
 //exec(`go run . --input ${input} --output ${output}`, (error, stdout, stderr) => {
 
-
-// Read the two files
-const file1 = format(fs.readFileSync(input, 'utf8'), {parser: 'html'})
-const file2 = format(fs.readFileSync(output, 'utf8'), {parser: 'html'})
-
-// Compare the two files and show the difference
-// try {
-//   assert.strictEqual(file1, file2);
-//   console.log('The files are the same');
-// } catch (error) {
-//   console.log('The files are different:');
-//   console.log(error);
-// }
-//});
-
-
 describe('', () => {
   it('should toto', () => {
-    const file1 = format(fs.readFileSync(input, 'utf8'), {
+    execSync(`go run . --input ${src} --output ${output}`);
+    const file1 = format(fs.readFileSync(expected, 'utf8'), {
       parser: 'html',
       printWidth: 1000,
       htmlWhitespaceSensitivity: 'ignore'

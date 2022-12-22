@@ -1,6 +1,7 @@
 package stl
 
 import (
+	"encoding/xml"
 	"fmt"
 	"time"
 )
@@ -73,4 +74,10 @@ func (t Timecode) Validate(framerate uint) error {
 		return fmt.Errorf("invalid frames: %d", t.Frames)
 	}
 	return nil
+}
+
+func (t Timecode) MarshalXML(e *xml.Encoder, start xml.StartElement) error {
+	s := fmt.Sprintf("%02d%02d%02d%02d", t.Hours, t.Minutes, t.Seconds, t.Frames)
+
+	return e.EncodeElement(s, start)
 }

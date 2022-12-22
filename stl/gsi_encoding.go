@@ -288,21 +288,18 @@ func decodeGSIDate(b []byte, v *time.Time) error {
 	var month int = 1
 	var day int = 1
 
-	var err error
-	if derr := decodeGSIInt(b[0:2], &year); derr != nil {
-		err = derr
+	if err := decodeGSIInt(b[0:2], &year); err != nil {
+		return err
 	}
-	if derr := decodeGSIInt(b[2:4], &month); derr != nil {
-		err = derr
+	if err := decodeGSIInt(b[2:4], &month); err != nil {
+		return err
 	}
-	if derr := decodeGSIInt(b[4:6], &day); derr != nil {
-		err = derr
+	if err := decodeGSIInt(b[4:6], &day); err != nil {
+		return err
 	}
 
-	*v = time.Date(year+2000, time.Month(month), day, 0, 0, 0, 0, time.UTC)
-
-	if err != nil {
-		return decodeErr(ErrInvalidGSIDateValue, b)
+	if year != 0 || month != 1 || day != 1 {
+		*v = time.Date(year+2000, time.Month(month), day, 0, 0, 0, 0, time.UTC)
 	}
 
 	return nil
