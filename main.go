@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/si0ls/go-subs/stl"
+	"github.com/si0ls/subs/stl"
 )
 
 func main() {

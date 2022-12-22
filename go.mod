@@ -1,4 +1,4 @@
-module github.com/si0ls/go-subs
+module github.com/si0ls/subs
 
 go 1.19
 
