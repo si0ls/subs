@@ -46,6 +46,17 @@ func main() {
 		printErrs(warns...)
 		fmt.Println("====================================")
 	}
+
+	// Encode XML to file
+	xmlFile, err := os.Create("out.xml")
+	if err != nil {
+		panic(err)
+	}
+	defer xmlFile.Close()
+	if err := s.EncodeXML(xmlFile); err != nil {
+		panic(err)
+	}
+
 }
 
 func printErrs(errs ...error) {
