@@ -12,11 +12,11 @@ import (
 func decodeGSIInt(b []byte, v *int) error {
 	s := strings.Trim(string(b), string([]byte(" ")))
 	if len(s) == 0 {
-		return encodingErr(ErrEmptyGSIIntValue, b)
+		return decodeErr(ErrEmptyGSIIntValue, b)
 	}
 	i, err := strconv.Atoi(s)
 	if err != nil {
-		return encodingErr(ErrInvalidGSIIntValue, b)
+		return decodeErr(ErrInvalidGSIIntValue, b)
 	}
 	*v = i
 	return nil
@@ -40,9 +40,9 @@ func decodeGSIByte(b []byte, v *byte) error {
 	var tmp int
 	if err := decodeGSIInt(b, &tmp); err != nil {
 		if errors.Unwrap(err) == ErrEmptyGSIIntValue {
-			return encodingErr(ErrEmptyGSIByteValue, b)
+			return decodeErr(ErrEmptyGSIByteValue, b)
 		}
-		return encodingErr(ErrInvalidGSIByteValue, b)
+		return decodeErr(ErrInvalidGSIByteValue, b)
 	}
 	*v = byte(tmp)
 	return nil
@@ -62,11 +62,11 @@ func decodeGSIHex(b []byte, v *byte) error {
 
 	s := strings.Trim(string(b), string([]byte(" ")))
 	if len(s) == 0 {
-		return encodingErr(ErrEmptyGSIHexValue, b)
+		return decodeErr(ErrEmptyGSIHexValue, b)
 	}
 	i, err := strconv.ParseInt(s, 16, 64)
 	if err != nil {
-		return encodingErr(ErrInvalidGSIHexValue, b)
+		return decodeErr(ErrInvalidGSIHexValue, b)
 	}
 	*v = byte(i)
 	return nil
@@ -89,11 +89,11 @@ func decodeGSIString(b []byte, v *string, cpn CodePageNumber) error {
 	if dec, ok := codePageNumberDecoders[cpn]; ok {
 		b, err := dec.Decode(bytes.TrimRight(b, string([]byte(" "))))
 		if err != nil {
-			return encodingErr(ErrInvalidGSIStringValue, b)
+			return decodeErr(ErrInvalidGSIStringValue, b)
 		}
 		*v = string(b)
 	} else {
-		return encodingErr(ErrUnsupportedGSICodePage, b)
+		return decodeErr(ErrUnsupportedGSICodePage, b)
 	}
 	return nil
 }
@@ -102,11 +102,11 @@ func encodeGSIString(b []byte, v string, cpn CodePageNumber) error {
 	if enc, ok := codePageNumberEncoders[cpn]; ok {
 		e, err := enc.Encode([]byte(v))
 		if err != nil {
-			return encodingErr(ErrInvalidGSIStringValue, []byte(v))
+			return encodeErr(ErrInvalidGSIStringValue, []byte(v))
 		}
 		copy(b, cutPad(e, len(b), ' '))
 	} else {
-		return encodingErr(ErrUnsupportedGSICodePage, []byte(v))
+		return encodeErr(ErrUnsupportedGSICodePage, []byte(v))
 	}
 	return nil
 }
@@ -134,7 +134,7 @@ func decodeGSIDate(b []byte, v *time.Time) error {
 	*v = time.Date(year+2000, time.Month(month), day, 0, 0, 0, 0, time.UTC)
 
 	if err != nil {
-		return encodingErr(ErrInvalidGSIDateValue, b)
+		return decodeErr(ErrInvalidGSIDateValue, b)
 	}
 
 	return nil
@@ -170,7 +170,7 @@ func decodeGSITimecode(b []byte, v *Timecode) error {
 	}
 
 	if err != nil {
-		return encodingErr(ErrInvalidGSITimecodeValue, b)
+		return decodeErr(ErrInvalidGSITimecodeValue, b)
 	}
 
 	return nil
