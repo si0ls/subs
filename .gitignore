@@ -21,3 +21,10 @@ subs
 
 # Go workspace file
 go.work
+
+.DS_Store
+.idea/
+sources_100/
+*.xml
+*.txt
+node_modules/
