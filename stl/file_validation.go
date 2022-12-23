@@ -20,9 +20,9 @@ func (f *File) Validate() ([]error, error) {
 	}
 
 	// validate GSI block
-	gsiWarns, gsiErr := f.GSI.Validate()
-	if gsiErr != nil {
-		return warns, gsiErr
+	gsiWarns, err := f.GSI.Validate()
+	if err != nil {
+		return warns, err
 	}
 	warns = appendNonNilErrs(warns, gsiWarns...)
 
@@ -33,18 +33,18 @@ func (f *File) Validate() ([]error, error) {
 
 	// match between gsi.TNB and len(f.TTI)
 	if f.GSI.TNB != len(f.TTI) {
-		warns = append(warns, validateErr(ErrTTIBlocksCountMismatch, nil, true))
+		warns = append(warns, gsiErr(validateErr(ErrTTIBlocksCountMismatch, nil, true), GSIFieldTNB))
 	}
 
 	// check GSI TSF timecode and first TTI TCI timecode
 	if f.GSI.TCF != f.TTI[0].TCI {
-		warns = append(warns, validateErr(ErrFirstTCMismatch, nil, true))
+		warns = append(warns, gsiErr(validateErr(ErrTCFFirstTCIMismatch, nil, true), GSIFieldTCF))
 	}
 
 	var subtitles int
 	var groups int
 
-	var lastSN int = 0
+	var lastSN int = -1
 	var lastSGN int = f.TTI[0].SGN
 	var lastEBN int = 0xFF
 	var lastCS CumulativeStatus = CumulativeStatusNone
@@ -56,20 +56,21 @@ func (f *File) Validate() ([]error, error) {
 		}
 
 		// validate TTI block
-		ttiWarns, ttiErr := tti.Validate(f.GSI.Framerate(), f.GSI.DSC, f.GSI.MNR)
-		if ttiErr != nil {
-			return warns, ttiErr
+		ttiWarns, err := tti.Validate(f.GSI.Framerate(), f.GSI.DSC, f.GSI.MNR)
+		if err != nil {
+			if ttiErr, ok := err.(*TTIError); ok {
+				ttiErr.setBlockNumber(i)
+			}
+			return warns, err
 		}
 		setTTIErrsBlockNumber(ttiWarns, i)
 		warns = appendNonNilErrs(warns, ttiWarns...)
-
-		// --------------------
 
 		// same subtitle (same group)
 		if tti.SN == lastSN && tti.SGN == lastSGN {
 			// check EBN is consecutive
 			if tti.EBN != lastEBN+1 {
-				warns = append(warns, validateErr(ErrEBNNotConsecutive, nil, true))
+				warns = append(warns, ttiErrWithBlockNumber(validateErr(ErrEBNNotConsecutive, tti.EBN, false), TTIFieldEBN, i))
 			}
 		} else { // new subtitle (same group or not)
 			subtitles++
@@ -79,31 +80,31 @@ func (f *File) Validate() ([]error, error) {
 		if tti.SN != lastSN && tti.SGN == lastSGN {
 			// check SN is consecutive
 			if tti.SN != lastSN+1 {
-				warns = append(warns, validateErr(ErrSNNotConsecutive, nil, true))
+				warns = append(warns, ttiErrWithBlockNumber(validateErr(ErrSNNotConsecutive, tti.SN, false), TTIFieldSN, i))
 			}
 
 			// closing EBN
 			if tti.EBN != 0xFF {
-				warns = append(warns, validateErr(ErrNonClosingEBNForLastSubtitle, nil, true))
+				warns = append(warns, ttiErrWithBlockNumber(validateErr(ErrNonClosingEBNForLastSubtitle, tti.EBN, false), TTIFieldEBN, i))
 			}
 
 			// check CS
 			switch lastCS {
 			case CumulativeStatusNone: // if last CS was None, then CS must be None or First
 				if tti.CS != CumulativeStatusNone && tti.CS != CumulativeStatusFirst {
-					warns = append(warns, validateErr(ErrCSNotNoneOrFirst, nil, true))
+					warns = append(warns, ttiErrWithBlockNumber(validateErr(ErrCSNotNoneOrFirst, tti.CS, false), TTIFieldCS, i))
 				}
 			case CumulativeStatusIntermediate: // if last was Intermediate, then CS must be Intermediate or Last
 				if tti.CS != CumulativeStatusIntermediate && tti.CS != CumulativeStatusLast {
-					warns = append(warns, validateErr(ErrCSNotIntermediateOrLast, nil, true))
+					warns = append(warns, ttiErrWithBlockNumber(validateErr(ErrCSNotIntermediateOrLast, tti.CS, false), TTIFieldCS, i))
 				}
 			case CumulativeStatusFirst: // if last was First, then CS must be Intermediate or Last
 				if tti.CS != CumulativeStatusIntermediate && tti.CS != CumulativeStatusLast {
-					warns = append(warns, validateErr(ErrCSNotIntermediateOrLast, nil, true))
+					warns = append(warns, ttiErrWithBlockNumber(validateErr(ErrCSNotIntermediateOrLast, tti.CS, false), TTIFieldCS, i))
 				}
 			case CumulativeStatusLast: // if last was Last, then CS must be None or Last
 				if tti.CS != CumulativeStatusNone && tti.CS != CumulativeStatusLast {
-					warns = append(warns, validateErr(ErrCSNotNoneOrLast, nil, true))
+					warns = append(warns, ttiErrWithBlockNumber(validateErr(ErrCSNotNoneOrLast, tti.CS, false), TTIFieldCS, i))
 				}
 			}
 		}
@@ -112,22 +113,22 @@ func (f *File) Validate() ([]error, error) {
 		if tti.SGN != lastSGN {
 			// check SGN is consecutive
 			if tti.SGN != lastSGN+1 {
-				warns = append(warns, validateErr(ErrSGNNotConsecutive, nil, true))
+				warns = append(warns, ttiErrWithBlockNumber(validateErr(ErrSGNNotConsecutive, tti.SGN, false), TTIFieldSGN, i))
 			}
 
 			// check subtitle is the first of the group
 			if tti.SN != 0 {
-				warns = append(warns, validateErr(ErrNoFirstSubtitleInNewGroup, nil, true))
+				warns = append(warns, ttiErrWithBlockNumber(validateErr(ErrNoFirstSubtitleInNewGroup, tti.SN, false), TTIFieldSN, i))
 			}
 
 			// closing EBN
 			if tti.EBN != 0xFF {
-				warns = append(warns, validateErr(ErrNonClosingEBNForLastSubtitle, nil, true))
+				warns = append(warns, ttiErrWithBlockNumber(validateErr(ErrNonClosingEBNForLastSubtitle, tti.EBN, false), TTIFieldEBN, i))
 			}
 
 			// check CS is none or last
 			if tti.CS != CumulativeStatusNone && tti.CS != CumulativeStatusLast {
-				warns = append(warns, validateErr(ErrCSNotNoneOrLast, nil, true))
+				warns = append(warns, ttiErrWithBlockNumber(validateErr(ErrCSNotNoneOrLast, tti.CS, false), TTIFieldCS, i))
 			}
 
 			groups++
@@ -142,12 +143,12 @@ func (f *File) Validate() ([]error, error) {
 
 	// check if subtitle count matches
 	if f.GSI.TNS != subtitles {
-		warns = append(warns, validateErr(ErrSubtitleCountMismatch, nil, true))
+		warns = append(warns, gsiErr(validateErr(ErrSubtitleCountMismatch, f.GSI.TNS, false), GSIFieldTNS))
 	}
 
 	// check if group count matches
 	if f.GSI.TNG != groups {
-		warns = append(warns, validateErr(ErrGroupCountMismatch, nil, true))
+		warns = append(warns, gsiErr(validateErr(ErrGroupCountMismatch, f.GSI.TNG, false), GSIFieldTNG))
 	}
 
 	return warns, nil
@@ -158,7 +159,7 @@ var (
 
 	ErrNoTTIBlocks            = errors.New("no TTI blocks")
 	ErrTTIBlocksCountMismatch = errors.New("TTI blocks count mismatch")
-	ErrFirstTCMismatch        = errors.New("first TTI timecode mismatch")
+	ErrTCFFirstTCIMismatch    = errors.New("first TTI timecode mismatch")
 
 	ErrEBNNotConsecutive = errors.New("EBN not consecutive")
 	ErrSNNotConsecutive  = errors.New("SN not consecutive")

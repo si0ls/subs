@@ -40,7 +40,7 @@ func (gsi *GSIBlock) Decode(r io.Reader) ([]error, error) {
 	warns = appendNonNilErrs(warns, gsiErr(decodeGSIDate(b[230:236], &gsi.RD), GSIFieldRD))                      // RD - bytes 230..235 (6 bytes)
 	warns = appendNonNilErrs(warns, gsiErr(decodeGSIInt(b[236:238], &gsi.RN), GSIFieldRN))                       // RN - bytes 236..237 (2 bytes)
 	warns = appendNonNilErrs(warns, gsiErr(decodeGSIInt(b[238:243], &gsi.TNB), GSIFieldTNB))                     // TNB - bytes 238..242 (5 bytes)
-	warns = appendNonNilErrs(warns, gsiErr(decodeGSIInt(b[243:248], &gsi.TNS), GSIFieldTNS))                     // TNB - bytes 243..247 (5 bytes)
+	warns = appendNonNilErrs(warns, gsiErr(decodeGSIInt(b[243:248], &gsi.TNS), GSIFieldTNS))                     // TNS - bytes 243..247 (5 bytes)
 	warns = appendNonNilErrs(warns, gsiErr(decodeGSIInt(b[248:251], &gsi.TNG), GSIFieldTNG))                     // TNG - bytes 248..250 (3 bytes)
 	warns = appendNonNilErrs(warns, gsiErr(decodeGSIInt(b[251:253], &gsi.MNC), GSIFieldMNC))                     // MNC - bytes 251..252 (2 bytes)
 	warns = appendNonNilErrs(warns, gsiErr(decodeGSIInt(b[253:255], &gsi.MNR), GSIFieldMNR))                     // MNR - bytes 253..254 (2 bytes)
