@@ -32,7 +32,7 @@ func (gsi *GSIBlock) Validate() ([]error, error) {
 	warns = appendNonNilErrs(warns, gsiErr(validateList(gsi.CCT, cctValidValues, ErrUnsupportedCCT, true), GSIFieldCCT))
 
 	// LC - in list
-	// Trick, do not validate list to avoid enormous error message
+	// Trick: do not validate list to avoid enormous error message
 	if gsi.LC > LanguageCodeWallon &&
 		(gsi.LC < LanguageCodeZulu || gsi.LC > LanguageCodeAmharic) {
 		warns = appendNonNilErrs(warns, gsiErr(validateErr(fmt.Errorf("%w: must be one of the supported MAC/packet family language code", ErrUnsupportedLC), gsi.LC, false), GSIFieldLC))
