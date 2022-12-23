@@ -84,8 +84,18 @@ func (gsi *GSIBlock) Reset() {
 	gsi.MNC = -1
 	gsi.MNR = -1
 	gsi.TCS = TimeCodeStatusInvalid
-	gsi.TCF = Timecode{}
-	gsi.TCP = Timecode{}
+	gsi.TCF = Timecode{
+		Hours:   -1,
+		Minutes: -1,
+		Seconds: -1,
+		Frames:  -1,
+	}
+	gsi.TCP = Timecode{
+		Hours:   -1,
+		Minutes: -1,
+		Seconds: -1,
+		Frames:  -1,
+	}
 	gsi.TND = -1
 	gsi.DSN = -1
 	gsi.CO = ""
