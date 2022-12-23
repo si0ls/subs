@@ -293,18 +293,16 @@ func decodeGSIDate(b []byte, v *time.Time) error {
 	var day int = 1
 
 	if err := decodeGSIInt(b[0:2], &year); err != nil {
-		return err
+		return decodeErr(ErrInvalidGSIDateValue, b)
 	}
 	if err := decodeGSIInt(b[2:4], &month); err != nil {
-		return err
+		return decodeErr(ErrInvalidGSIDateValue, b)
 	}
 	if err := decodeGSIInt(b[4:6], &day); err != nil {
-		return err
+		return decodeErr(ErrInvalidGSIDateValue, b)
 	}
 
-	if year != 0 || month != 1 || day != 1 {
-		*v = time.Date(year+2000, time.Month(month), day, 0, 0, 0, 0, time.UTC)
-	}
+	*v = time.Date(year+2000, time.Month(month), day, 0, 0, 0, 0, time.UTC)
 
 	return nil
 }
@@ -324,23 +322,28 @@ func decodeGSITimecode(b []byte, v *Timecode) error {
 		panic(fmt.Errorf("invalid GSI timecode length %d", len(b)))
 	}
 
-	var err error
-	if derr := decodeGSIInt(b[0:2], &v.Hours); derr != nil {
-		err = derr
-	}
-	if derr := decodeGSIInt(b[2:4], &v.Minutes); derr != nil {
-		err = derr
-	}
-	if derr := decodeGSIInt(b[4:6], &v.Seconds); derr != nil {
-		err = derr
-	}
-	if derr := decodeGSIInt(b[6:8], &v.Frames); derr != nil {
-		err = derr
-	}
+	var hours int = 0
+	var minutes int = 0
+	var seconds int = 0
+	var frames int = 0
 
-	if err != nil {
+	if err := decodeGSIInt(b[0:2], &hours); err != nil {
 		return decodeErr(ErrInvalidGSITimecodeValue, b)
 	}
+	if err := decodeGSIInt(b[2:4], &minutes); err != nil {
+		return decodeErr(ErrInvalidGSITimecodeValue, b)
+	}
+	if err := decodeGSIInt(b[4:6], &seconds); err != nil {
+		return decodeErr(ErrInvalidGSITimecodeValue, b)
+	}
+	if err := decodeGSIInt(b[6:8], &frames); err != nil {
+		return decodeErr(ErrInvalidGSITimecodeValue, b)
+	}
+
+	v.Hours = hours
+	v.Minutes = minutes
+	v.Seconds = seconds
+	v.Frames = frames
 
 	return nil
 }

@@ -61,8 +61,18 @@ func (tti *TTIBlock) Reset() {
 	tti.SN = -1
 	tti.EBN = -1
 	tti.CS = CumulativeStatusInvalid
-	tti.TCI = Timecode{}
-	tti.TCO = Timecode{}
+	tti.TCI = Timecode{
+		Hours:   -1,
+		Minutes: -1,
+		Seconds: -1,
+		Frames:  -1,
+	}
+	tti.TCO = Timecode{
+		Hours:   -1,
+		Minutes: -1,
+		Seconds: -1,
+		Frames:  -1,
+	}
 	tti.VP = -1
 	tti.JC = JustificationCodeInvalid
 	tti.CF = CommentFlagInvalid
