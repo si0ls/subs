@@ -258,7 +258,7 @@ func encodeGSIHex(b []byte, v byte) {
 }
 
 func decodeGSIString(b []byte, v *string, cpn CodePageNumber) error {
-	if dec, ok := codePageNumberDecoders[cpn]; ok {
+	if dec, ok := CodePageNumberDecoders[cpn]; ok {
 		b, err := dec.Decode(bytes.TrimRight(b, string([]byte(" "))))
 		if err != nil {
 			return decodeErr(ErrInvalidGSIStringValue, b)
@@ -271,7 +271,7 @@ func decodeGSIString(b []byte, v *string, cpn CodePageNumber) error {
 }
 
 func encodeGSIString(b []byte, v string, cpn CodePageNumber) error {
-	if enc, ok := codePageNumberEncoders[cpn]; ok {
+	if enc, ok := CodePageNumberEncoders[cpn]; ok {
 		e, err := enc.Encode([]byte(v))
 		if err != nil {
 			return encodeErr(ErrInvalidGSIStringValue, []byte(v))

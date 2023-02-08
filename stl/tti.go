@@ -32,7 +32,7 @@ func NewTTIBlock() *TTIBlock {
 
 // Text returns the UTF-8 decoded Text Field (TF).
 func (tti *TTIBlock) Text(cct CharacterCodeTable) (string, error) {
-	if dec, ok := characterCodeTableDecoders[cct]; ok {
+	if dec, ok := CharacterCodeTableDecoders[cct]; ok {
 		b, err := dec.Decode([]byte(tti.TF))
 		if err != nil {
 			return "", err
@@ -44,7 +44,7 @@ func (tti *TTIBlock) Text(cct CharacterCodeTable) (string, error) {
 
 // SetText sets the Text Field (TF) from the UTF-8 encoded text.
 func (tti *TTIBlock) SetText(text string, cct CharacterCodeTable) error {
-	if enc, ok := characterCodeTableEncoders[cct]; ok {
+	if enc, ok := CharacterCodeTableEncoders[cct]; ok {
 		b, err := enc.Encode([]byte(text))
 		if err != nil {
 			return err

@@ -4,7 +4,7 @@ import (
 	"golang.org/x/text/encoding/charmap"
 )
 
-var codePageNumberEncoders = map[CodePageNumber]TextEncoder{
+var CodePageNumberEncoders = map[CodePageNumber]TextEncoder{
 	CodePageNumberUnitedStates:   &Charmap{charmap.CodePage437},
 	CodePageNumberMultiLingual:   &Charmap{charmap.CodePage850},
 	CodePageNumberPortugal:       &Charmap{charmap.CodePage860},
@@ -12,7 +12,7 @@ var codePageNumberEncoders = map[CodePageNumber]TextEncoder{
 	CodePageNumberNordic:         &Charmap{charmap.CodePage865},
 }
 
-var codePageNumberDecoders = map[CodePageNumber]TextDecoder{
+var CodePageNumberDecoders = map[CodePageNumber]TextDecoder{
 	CodePageNumberUnitedStates:   &Charmap{charmap.CodePage437},
 	CodePageNumberMultiLingual:   &Charmap{charmap.CodePage850},
 	CodePageNumberPortugal:       &Charmap{charmap.CodePage860},
@@ -20,7 +20,7 @@ var codePageNumberDecoders = map[CodePageNumber]TextDecoder{
 	CodePageNumberNordic:         &Charmap{charmap.CodePage865},
 }
 
-var characterCodeTableEncoders = map[CharacterCodeTable]TextEncoder{
+var CharacterCodeTableEncoders = map[CharacterCodeTable]TextEncoder{
 	CharacterCodeTableLatin:         &ISO6937,
 	CharacterCodeTableLatinCyrillic: &Charmap{charmap.ISO8859_5},
 	CharacterCodeTableLatinArabic:   &Charmap{charmap.ISO8859_6},
@@ -28,7 +28,7 @@ var characterCodeTableEncoders = map[CharacterCodeTable]TextEncoder{
 	CharacterCodeTableLatinHebrew:   &Charmap{charmap.ISO8859_8},
 }
 
-var characterCodeTableDecoders = map[CharacterCodeTable]TextDecoder{
+var CharacterCodeTableDecoders = map[CharacterCodeTable]TextDecoder{
 	CharacterCodeTableLatin:         &ISO6937,
 	CharacterCodeTableLatinCyrillic: &Charmap{charmap.ISO8859_5},
 	CharacterCodeTableLatinArabic:   &Charmap{charmap.ISO8859_6},
@@ -53,6 +53,10 @@ type TextEncoder interface {
 type Charmap struct {
 	codePage *charmap.Charmap
 }
+
+// Charmap implements TextDecoder and TextEncoder interfaces.
+var _ TextDecoder = (*Charmap)(nil)
+var _ TextEncoder = (*Charmap)(nil)
 
 // Encode encodes b using the charmap.
 func (c *Charmap) Encode(b []byte) ([]byte, error) {

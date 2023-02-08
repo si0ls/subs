@@ -1,10 +1,12 @@
 package main
 
 import (
+	"encoding/xml"
 	"fmt"
 	"os"
 
 	"github.com/si0ls/subs/stl"
+	"github.com/si0ls/subs/stlxml"
 )
 
 func main() {
@@ -47,13 +49,23 @@ func main() {
 		fmt.Println("====================================")
 	}
 
-	// Encode XML to file
-	xmlFile, err := os.Create("out.xml")
+	// Encode to XML
+	xmlFile := stlxml.New()
+	xmlFile.FromSTL(*s)
+
+	// Create a new file
+	newFile, err := os.Create("new.stl.xml")
 	if err != nil {
 		panic(err)
 	}
-	defer xmlFile.Close()
-	if err := s.EncodeXML(xmlFile); err != nil {
+
+	// Write XML header to file
+	if _, err := newFile.WriteString(xml.Header); err != nil {
+		panic(err)
+	}
+
+	// Encode to XML
+	if err := xmlFile.EncodeIndent(newFile, "", ""); err != nil {
 		panic(err)
 	}
 

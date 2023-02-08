@@ -1,0 +1,4 @@
+- [ ] Pad GSI values (even non-string)
+- [x] UTF-8 ransform rune by rune to avoid loosing 0x8A spaces at end of block
+- [ ] Move text transformation from TTIXML init to TTI xml marshaler
+- [ ] Manage TF parsing
