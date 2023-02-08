@@ -13,6 +13,9 @@ type ValidateError struct {
 	fatal bool
 }
 
+// ValidateError implements error interface.
+var _ error = (*ValidateError)(nil)
+
 func validateErr(err error, value any, fatal bool) error {
 	if err == nil {
 		return nil

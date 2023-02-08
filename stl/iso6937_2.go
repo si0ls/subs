@@ -69,6 +69,10 @@ var ISO6937 = iso6937{}
 
 type iso6937 struct{}
 
+// iso6937 implements TextDecoder and TextEncoder.
+var _ TextDecoder = (*iso6937)(nil)
+var _ TextEncoder = (*iso6937)(nil)
+
 // Decode decodes ISO 6937 encoded bytes into an UTF-8 encoded string.
 func (e *iso6937) Decode(src []byte) ([]byte, error) {
 	// Swap diacritics

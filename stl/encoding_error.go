@@ -29,6 +29,9 @@ type EncodingError struct {
 	value interface{}
 }
 
+// EncodingError implements error interface.
+var _ error = (*EncodingError)(nil)
+
 // Error returns the error message.
 func (e *EncodingError) Error() string {
 	return fmt.Sprintf("%s (input: %v)", e.error.Error(), e.value)

@@ -1,7 +1,6 @@
 package stl
 
 import (
-	"encoding/xml"
 	"fmt"
 	"io"
 )
@@ -10,12 +9,11 @@ import (
 // The file comprises one General Subtitle Information (GSI) block and a
 // number of Text and Timing Information (TTI) blocks.
 type File struct {
-	XMLName xml.Name    `xml:"StlXml"`
-	GSI     *GSIBlock   `xml:"HEAD>GSI"`
-	TTI     []*TTIBlock `xml:"BODY>TTICONTAINER>TTI"`
+	GSI *GSIBlock
+	TTI []*TTIBlock
 }
 
-// CreateFile returns a new stl.File.
+// NewFile returns a new stl.File.
 func NewFile() *File {
 	return &File{}
 }
@@ -64,15 +62,4 @@ func (f *File) Encode(w io.Writer) error {
 		}
 	}
 	return nil
-}
-
-func (f *File) EncodeXML(w io.Writer) error {
-	enc := xml.NewEncoder(w)
-	enc.Indent("", "  ")
-	return enc.Encode(f)
-}
-
-func (f *File) DecodeXML(r io.Reader) error {
-	dec := xml.NewDecoder(r)
-	return dec.Decode(f)
 }
