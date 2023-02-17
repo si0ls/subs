@@ -15,7 +15,7 @@ func decodeString(s string) string {
 
 // encodeString encodes a string padded with spaces to the specified length.
 func encodeString(s string, length int) string {
-	return fmt.Sprintf("% *s", length, s)
+	return fmt.Sprintf("%-*s", length, s)
 }
 
 // decodeInt decodes a string as an int.
@@ -33,7 +33,7 @@ func decodeInt(s string) (int, error) {
 // encodeInt encodes an int as a string padded with zeros to the specified length.
 func encodeInt(i int, length int) string {
 	if i < 0 {
-		return ""
+		return strings.Repeat(" ", length)
 	}
 	return fmt.Sprintf("%0*d", length, i)
 }
@@ -53,7 +53,7 @@ func decodeByte(s string) (byte, error) {
 // encodeByte encodes a byte as a string padded with zeros to the specified length.
 func encodeByte(b byte, length int) string {
 	if b == 0xFF {
-		return ""
+		return strings.Repeat(" ", length)
 	}
 	return fmt.Sprintf("%0*d", length, b)
 }
@@ -77,7 +77,7 @@ func decodeHexInt(s string, upper bool) (int, error) {
 // encodeHexInt encodes an int as a hex string padded with zeros to the specified length.
 func encodeHexInt(i int, length int, upper bool) string {
 	if i < 0 {
-		return ""
+		return strings.Repeat(" ", length)
 	}
 	format := "%0*x"
 	if upper {
@@ -105,7 +105,7 @@ func decodeHexByte(s string, upper bool) (byte, error) {
 // encodeHexByte encodes an byte as a hex string padded with zeros to the specified length.
 func encodeHexByte(b byte, length int, upper bool) string {
 	if b == 0xFF {
-		return ""
+		return strings.Repeat(" ", length)
 	}
 	format := "%0*x"
 	if upper {
@@ -129,7 +129,7 @@ func decodeTimecode(s string) (stl.Timecode, error) {
 // encodeTimecode encodes a stl.Timecode as a string.
 func encodeTimecode(tc stl.Timecode) string {
 	if tc.Hours < 0 {
-		return ""
+		return "        "
 	}
 	return fmt.Sprintf("%02d%02d%02d%02d", tc.Hours, tc.Minutes, tc.Seconds, tc.Frames)
 }
@@ -149,7 +149,7 @@ func decodeTime(s string) (time.Time, error) {
 // encodeTime encodes a time.Time as a string.
 func encodeTime(t time.Time) string {
 	if t.IsZero() {
-		return ""
+		return "      "
 	}
 	return t.Format("060102")
 }

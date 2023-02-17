@@ -65,7 +65,7 @@ var _ charHandler = (*controlCodeHandler)(nil)
 
 func (h *controlCodeHandler) HandleChar(b byte) []byte {
 	if v, exists := stlControlCodeXmlTag[stl.ControlCode(b)]; exists {
-		return []byte(fmt.Sprintf("<%s />", v))
+		return []byte(fmt.Sprintf("<%s/>", v))
 	}
 	return []byte{}
 }
@@ -76,7 +76,7 @@ var _ charHandler = (*spaceHandler)(nil)
 
 func (h *spaceHandler) HandleChar(b byte) []byte {
 	if b == 0x20 || b == 0xA0 {
-		return []byte("<space />")
+		return []byte("<space/>")
 	}
 	return []byte{}
 }
@@ -99,14 +99,16 @@ var handlers = []charHandler{
 }
 
 var stlControlCodeXmlTag = map[stl.ControlCode]string{
-	stl.ControlCodeItalicOn:                                  "ItalicOn",
-	stl.ControlCodeItalicOff:                                 "ItalicOff",
-	stl.ControlCodeUnderlineOn:                               "UnderlineOn",
-	stl.ControlCodeUnderlineOff:                              "UnderlineOff",
-	stl.ControlCodeBoxingOn:                                  "StartBox",
-	stl.ControlCodeBoxingOff:                                 "EndBox",
-	stl.ControlCodeLineBreak:                                 "newline",
-	stl.ControlCodeUnusedSpace:                               "UnusedSpace",
+	stl.ControlCodeLineBreak:   "newline",
+	stl.ControlCodeUnusedSpace: "UnusedSpace",
+
+	stl.ControlCodeItalicOn:     "ItalicOn",
+	stl.ControlCodeItalicOff:    "ItalicOff",
+	stl.ControlCodeUnderlineOn:  "UnderlineOn",
+	stl.ControlCodeUnderlineOff: "UnderlineOff",
+	stl.ControlCodeBoxingOn:     "StartBox",
+	stl.ControlCodeBoxingOff:    "EndBox",
+
 	stl.ControlCode(stl.TeletextControlCodeAlphaBlack):       "AlphaBlack",
 	stl.ControlCode(stl.TeletextControlCodeAlphaRed):         "AlphaRed",
 	stl.ControlCode(stl.TeletextControlCodeAlphaGreen):       "AlphaGreen",
@@ -139,47 +141,3 @@ var stlControlCodeXmlTag = map[stl.ControlCode]string{
 	stl.ControlCode(stl.TeletextControlCodeHoldMosaic):       "HoldMosaic",
 	stl.ControlCode(stl.TeletextControlCodeReleaseMosaic):    "ReleaseMosaic",
 }
-
-/*
-var xmlTagStlControlCode = map[string]stl.ControlCode{
-	"ItalicOn":         stl.ControlCodeItalicOn,
-	"ItalicOff":        stl.ControlCodeItalicOff,
-	"UnderlineOn":      stl.ControlCodeUnderlineOn,
-	"UnderlineOff":     stl.ControlCodeUnderlineOff,
-	"StartBox":         stl.ControlCodeBoxingOn,
-	"EndBox":           stl.ControlCodeBoxingOff,
-	"newline":          stl.ControlCodeLineBreak,
-	"UnusedSpace":      stl.ControlCodeUnusedSpace,
-	"AlphaBlack":       stl.ControlCode(stl.TeletextControlCodeAlphaBlack),
-	"AlphaRed":         stl.ControlCode(stl.TeletextControlCodeAlphaRed),
-	"AlphaGreen":       stl.ControlCode(stl.TeletextControlCodeAlphaGreen),
-	"AlphaYellow":      stl.ControlCode(stl.TeletextControlCodeAlphaYellow),
-	"AlphaBlue":        stl.ControlCode(stl.TeletextControlCodeAlphaBlue),
-	"AlphaMagenta":     stl.ControlCode(stl.TeletextControlCodeAlphaMagenta),
-	"AlphaCyan":        stl.ControlCode(stl.TeletextControlCodeAlphaCyan),
-	"AlphaWhite":       stl.ControlCode(stl.TeletextControlCodeAlphaWhite),
-	"Flash":            stl.ControlCode(stl.TeletextControlCodeFlash),
-	"Steady":           stl.ControlCode(stl.TeletextControlCodeSteady),
-	"EndBox":           stl.ControlCode(stl.TeletextControlCodeEndBox),
-	"StartBox":         stl.ControlCode(stl.TeletextControlCodeStartBox),
-	"NormalHeight":     stl.ControlCode(stl.TeletextControlCodeNormalHeight),
-	"DoubleHeight":     stl.ControlCode(stl.TeletextControlCodeDoubleHeight),
-	"DoubleWidth":      stl.ControlCode(stl.TeletextControlCodeDoubleWidth),
-	"DoubleSize":       stl.ControlCode(stl.TeletextControlCodeDoubleSize),
-	"MosaicBlack":      stl.ControlCode(stl.TeletextControlCodeMosaicBlack),
-	"MosaicRed":        stl.ControlCode(stl.TeletextControlCodeMosaicRed),
-	"MosaicGreen":      stl.ControlCode(stl.TeletextControlCodeMosaicGreen),
-	"MosaicYellow":     stl.ControlCode(stl.TeletextControlCodeMosaicYellow),
-	"MosaicBlue":       stl.ControlCode(stl.TeletextControlCodeMosaicBlue),
-	"MosaicMagenta":    stl.ControlCode(stl.TeletextControlCodeMosaicMagenta),
-	"MosaicCyan":       stl.ControlCode(stl.TeletextControlCodeMosaicCyan),
-	"MosaicWhite":      stl.ControlCode(stl.TeletextControlCodeMosaicWhite),
-	"Conceal":          stl.ControlCode(stl.TeletextControlCodeConceal),
-	"ContiguousMosaic": stl.ControlCode(stl.TeletextControlCodeContiguousMosaic),
-	"SeparatedMosaic":  stl.ControlCode(stl.TeletextControlCodeSeparatedMosaic),
-	"BlackBackground":  stl.ControlCode(stl.TeletextControlCodeBlackBackground),
-	"NewBackground":    stl.ControlCode(stl.TeletextControlCodeNewBackground),
-	"HoldMosaic":       stl.ControlCode(stl.TeletextControlCodeHoldMosaic),
-	"ReleaseMosaic":    stl.ControlCode(stl.TeletextControlCodeReleaseMosaic),
-}
-*/

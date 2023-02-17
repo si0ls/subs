@@ -471,7 +471,7 @@ func (tcs *TCSXML) UnmarshalXML(d *xml.Decoder, start xml.StartElement) error {
 
 // MarshalXML returns the XML encoding of tcs.
 func (tcs TCSXML) MarshalXML(e *xml.Encoder, start xml.StartElement) error {
-	return marshalXMLByte(byte(tcs), e, start, 2)
+	return marshalXMLByte(byte(tcs), e, start, 1)
 }
 
 // TCPXML is the XML representation of STL Time Code: Start-of-Program (TCP).
