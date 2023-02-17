@@ -26,3 +26,14 @@ func appendNonNilErrs(errs []error, err ...error) []error {
 	}
 	return errs
 }
+
+// trimRight returns a copy of b with trailing v removed.
+func trimRight(b []byte, v byte) []byte {
+	for i := len(b) - 1; i >= 0; i-- {
+		if b[i] != v {
+			return b[:i+1]
+		}
+	}
+
+	return nil
+}

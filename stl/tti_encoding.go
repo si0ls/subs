@@ -5,7 +5,6 @@ import (
 	"encoding/binary"
 	"fmt"
 	"io"
-	"strings"
 )
 
 // Decode reads and decodes TTI block from reader.
@@ -74,7 +73,7 @@ func encodeTTIInt(b []byte, v int) {
 }
 
 func decodeTTIString(b []byte, v *string) {
-	*v = strings.TrimRight(string(b), string([]byte{0x8F}))
+	*v = string(trimRight(b, 0x8F))
 }
 
 func encodeTTIString(b []byte, v string) {

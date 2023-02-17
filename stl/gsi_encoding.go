@@ -48,7 +48,7 @@ func (gsi *GSIBlock) Decode(r io.Reader) ([]error, error) {
 	warns = appendNonNilErrs(warns, gsiErr(decodeGSITimecode(b[256:264], &gsi.TCP), GSIFieldTCP))                // TCP - bytes 256..263 (8 bytes)
 	warns = appendNonNilErrs(warns, gsiErr(decodeGSITimecode(b[264:272], &gsi.TCF), GSIFieldTCF))                // TCF - bytes 264..271 (8 bytes)
 	warns = appendNonNilErrs(warns, gsiErr(decodeGSIInt(b[272:273], &gsi.TND), GSIFieldTND))                     // TND - byte 272 (1 byte)
-	warns = appendNonNilErrs(warns, gsiErr(decodeGSIInt(b[272:274], &gsi.DSN), GSIFieldDSN))                     // DSN - byte 273 (1 byte)
+	warns = appendNonNilErrs(warns, gsiErr(decodeGSIInt(b[273:274], &gsi.DSN), GSIFieldDSN))                     // DSN - byte 273 (1 byte)
 	warns = appendNonNilErrs(warns, gsiErr(decodeGSIString(b[274:277], &gsi.CO, gsi.CPN), GSIFieldCO))           // CO - bytes 274..276 (3 bytes)
 	warns = appendNonNilErrs(warns, gsiErr(decodeGSIString(b[277:309], &gsi.PUB, gsi.CPN), GSIFieldPUB))         // PUB - bytes 277..308 (32 bytes)
 	warns = appendNonNilErrs(warns, gsiErr(decodeGSIString(b[309:341], &gsi.EN, gsi.CPN), GSIFieldEN))           // EN - bytes 309..340 (32 bytes)
@@ -152,7 +152,7 @@ func (gsi *GSIBlock) Encode(w io.Writer) error {
 	encodeGSIInt(b[272:273], gsi.TND)
 
 	// DSN - byte 273 (1 byte)
-	encodeGSIInt(b[272:274], gsi.DSN)
+	encodeGSIInt(b[273:274], gsi.DSN)
 
 	// CO - bytes 274..276 (3 bytes)
 	if err := encodeGSIString(b[274:277], gsi.CO, gsi.CPN); err != nil {
